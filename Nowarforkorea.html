@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <title>jadwal 7.1</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #eee;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      width: 1024px;
+      margin: 40px auto;
+      padding: 30px;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 15px;
+    }
+
+    h2 {
+      margin: 0 0 20px 0;
+      font-size: 20px;
+      color: #2c3e50;
+    }
+
+    select {
+      font-size: 15px;
+      padding: 5px 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .special {
+      text-align: center;
+      font-style: italic;
+      font-weight: bold;
+      background: #f4faff;
+    }
+
+    .sub {
+      font-size: 12px;
+      color: gray;
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .foto-bawah {
+      display: block;
+      margin: 30px auto 10px auto;
+      max-width: 300px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>jadwal 7.1 - hari <span id="judul-hari">senin</span></h2>
+
+    <label for="hari">pilih hari:</label>
+    <select id="hari" onchange="tampilkanJadwal()">
+      <option value="senin">senin</option>
+      <option value="selasa">selasa</option>
+      <option value="rabu">rabu</option>
+      <option value="kamis">kamis</option>
+      <option value="jumat">jumat</option>
+    </select>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Jam</th>
+          <th>Kode</th>
+          <th>Guru</th>
+          <th>Mapel</th>
+        </tr>
+      </thead>
+      <tbody id="jadwal-body"></tbody>
+    </table>
+
+    <!-- FOTO DI BAWAH -->
+    <img src="kanghae.jpg" alt="Foto keren banget" class="foto-bawah" loading="lazy">
+    <img src="supi.jpg" alt="Foto keren banget2" class="foto-bawah" loading="lazy">
+
+    <div class="sub">i luv kang hae and supi so mac</div>
+  </div>
+
+<script>
+  const kode_mapel = {
+    17: ["Anton Hamidi", "BING"], 18: ["Sri Lestari", "Balam"], 28: ["Agung Kurnia Perdana", "PJOK"],
+    30: ["Inggit Ratnasari", "BK"], 33: ["Mei Rohaeti", "PAI"], 34: ["Anisa Rahmadini", "PKn"],
+    35: ["Marina Asnusa", "IPA"], 36: ["Apriyan Aryatama", "Informatika"], 37: ["Junardi", "Seni Budaya"],
+    38: ["Ma'ruf Darmawan", "MTK"], 49: ["Windiya Prihandini", "IPS"], 55: ["Aji Faturohman", "BINDO"]
+  };
+
+  const jadwal_7_1 = {
+  "senin": [
+    ["07.00 - 07.45 Upacara"],
+    ["07.45 - 08.20", 33],
+    ["08.20 - 08.55", 33],
+    ["08.55 - 09.30", 33],
+    ["09.30 - 10.20 ISTIRAHAT"],
+    ["10.20 - 11.00", 34],
+    ["11.00 - 11.40", 34],
+    ["11.40 - 12.15 ISTIRAHAT"],
+    ["13.15 - 13.55", 55],
+    ["13.55 - 14.35", 55],
+    ["14.35 - 15.15", 55]
+  ],
+  "selasa": [
+    ["07.00 - 07.30 Tadarus"],
+    ["07.30 - 08.10", 55],
+    ["08.10 - 08.50", 55],
+    ["08.50 - 09.30", 55],
+    ["09.30 - 10.25 ISTIRAHAT"],
+    ["10.25 - 11.05", 38],
+    ["11.05 - 11.45", 38],
+    ["11.45 - 12.15", 38],
+    ["12.15 - 13.15 ISTIRAHAT"],
+    ["13.15 - 13.55", 17],
+    ["13.55 - 14.35", 17],
+    ["14.35 - 15.15", 30]
+  ],
+  "rabu": [
+    ["07.00 - 07.30 Tadarus"],
+    ["07.30 - 08.10", 38],
+    ["08.10 - 08.50", 38],
+    ["08.50 - 09.30", 17],
+    ["09.30 - 10.25 ISTIRAHAT"],
+    ["10.25 - 11.05", 17],
+    ["11.05 - 11.45", 35],
+    ["11.45 - 12.15", 35],
+    ["12.15 - 13.15 ISTIRAHAT"],
+    ["13.15 - 13.55", 35],
+    ["13.55 - 14.35", 18],
+    ["14.35 - 15.15", 18]
+  ],
+  "kamis": [
+    ["07.00 - 07.30 Apel/Inggris Story"],
+    ["07.30 - 08.10", 36],
+    ["08.10 - 08.50", 36],
+    ["08.50 - 09.30", 35],
+    ["09.30 - 10.25 ISTIRAHAT"],
+    ["10.25 - 11.05", 35],
+    ["11.05 - 11.45", 37],
+    ["11.45 - 12.15", 37],
+    ["12.15 - 13.15 ISTIRAHAT"],
+    ["13.15 - 13.55", 37],
+    ["13.55 - 14.35", 49],
+    ["14.35 - 15.15", 49]
+  ],
+  "jumat": [
+    ["07.00 - 07.30 Pembinaan Rohani/Olahraga"],
+    ["07.30 - 08.10", 49],
+    ["08.10 - 08.50", 49],
+    ["08.50 - 09.30", 28],
+    ["09.30 - 10.10 ISTIRAHAT"],
+    ["10.10 - 10.40", 28],
+    ["10.40 - 11.30", 28]
+  ]
+};
+
+  function tampilkanJadwal() {
+    const hari = document.getElementById("hari").value;
+    document.getElementById("judul-hari").textContent = hari;
+    const tbody = document.getElementById("jadwal-body");
+    tbody.innerHTML = "";
+
+    jadwal_7_1[hari].forEach(item => {
+      const tr = document.createElement("tr");
+      if (item.length === 1) {
+        tr.className = "special";
+        const td = document.createElement("td");
+        td.colSpan = 4;
+        td.textContent = "🟢 " + item[0];
+        tr.appendChild(td);
+      } else {
+        const [jam, kode] = item;
+        const [guru, mapel] = kode_mapel[kode] || ["???", "???"];
+        tr.innerHTML = `<td>🕘 ${jam}</td><td>${kode}</td><td>${guru}</td><td>${mapel}</td>`;
+      }
+      tbody.appendChild(tr);
+    });
+  }
+
+  window.onload = () => {
+    const hari = ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"][new Date().getDay()];
+    const s = document.getElementById("hari");
+    if (jadwal_7_1[hari]) s.value = hari;
+    tampilkanJadwal();
+  }
+</script>
+</body>
+</html>
