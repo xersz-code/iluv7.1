@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>andra bebek</title>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 100px;
+    }
+
+    .play-button {
+      background-color: #39ff14;
+      border: none;
+      border-radius: 25px;
+      padding: 15px 30px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #000;
+      cursor: pointer;
+      box-shadow: 0 0 15px #39ff14, 0 0 30px #39ff14;
+      transition: transform 0.2s ease;
+    }
+
+    .play-button:hover {
+      transform: scale(1.05);
+    }
+
+    .play-button:disabled {
+      background-color: #555;
+      color: #999;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    .gambar {
+      display: block;
+      margin: 30px auto 10px auto;
+      max-width: 300px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    audio {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>ak sange mas</h1>
+  <h2>ANDRA LABYU</h2>
+  <button class="play-button" id="playBtn" onclick="playMusic()">ilovmodani ajg</button>
+  <audio id="myAudio" src="bumbumm.mp3"></audio>
+  
+  <img class="gambar" src="andra.jpg" alt="" />
+
+  <script>
+    function playMusic() {
+      const audio = document.getElementById("myAudio");
+      const button = document.getElementById("playBtn");
+
+      audio.play();
+      button.disabled = true; // disable button after clicked
+    }
+  </script>
+
+</body>
+</html>
