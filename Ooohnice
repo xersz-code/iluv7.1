@@ -30,6 +30,7 @@ local Window = Rayfield:CreateWindow({
 local MainTab = Window:CreateTab("Main", 4483362458)
 local ESPTab = Window:CreateTab("ESP", 4483362458)
 local CombatTab = Window:CreateTab("Combat", 4483362458)
+local VisualsTab = Window:CreateTab("Visuals", 4483362458) -- New tab for Ghost Follower
 
 --// Variables
 local active = false
@@ -38,6 +39,7 @@ local ESP_Enabled = false
 local ESP_Survivor_Enabled = false
 local activeTwoTime = false
 local ESP_Item_Enabled = false
+local ghostFollower_Enabled = false -- Ghost Follower toggle
 local ESP_Objects = {}
 local aimDuration = 1.1
 local aimTargets = { "Jason", "Slasher", "c00lkidd", "JohnDoe", "1x1x1x1", "Noli" }
@@ -50,20 +52,109 @@ local trackedAnimations = {
 }
 local aimTargetsTwoTime = { "Slasher", "Jason", "c00lkidd", "JohnDoe", "1x1x1x1", "Noli" }
 local trackedAnimationsTwoTime = { ["86545133269813"] = true }
-local ItemNames = {"Medkit", "BloxyCola", "Generator"} -- Fixed Medkit case and replaced FakeGenerator
+local ItemNames = {"Medkit", "BloxyCola", "Generator"}
 local Humanoid, HRP = nil, nil
 local lastTriggerTime = 0
 local aiming = false
 local originalWS, originalJP, originalAutoRotate = nil, nil, nil
+-- Ghost Follower variables
+local ghostDelay = 1.5
+local ghostInterval = 0.1
+local ghostColor = Color3.new(1, 0, 0)
+local ghost = nil
+local ghostHistory = {}
+local ghostTracking = false
+local ghostConn1, ghostConn2
 
 --// Setup Character
 local function setupCharacter(char)
     Humanoid = char:WaitForChild("Humanoid")
     HRP = char:WaitForChild("HumanoidRootPart")
+    if ghostFollower_Enabled then -- Restart Ghost Follower on respawn
+        if ghostTracking then
+            stopGhostTracking()
+            startGhostTracking()
+        end
+    end
 end
 
 if LocalPlayer.Character then setupCharacter(LocalPlayer.Character) end
 LocalPlayer.CharacterAdded:Connect(setupCharacter)
+
+--// Ghost Follower Logic
+local function makeGhost(char)
+    local ghostModel = Instance.new("Model")
+    ghostModel.Name = "GhostFollower"
+    for _, part in ipairs(char:GetChildren()) do
+        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+            local clone = Instance.new("Part")
+            clone.Name = "Ghost_" .. part.Name
+            clone.Size = part.Size
+            clone.Anchored = true
+            clone.CanCollide = false
+            clone.Transparency = 0.3
+            clone.Material = Enum.Material.ForceField
+            clone.Color = ghostColor
+            clone.CFrame = part.CFrame
+            clone.Parent = ghostModel
+        end
+    end
+    ghostModel.Parent = workspace
+    print("Ghost Follower created for character")
+    return ghostModel
+end
+
+local function startGhostTracking()
+    ghostHistory = {}
+    ghost = makeGhost(LocalPlayer.Character)
+    ghostTracking = true
+
+    ghostConn1 = RunService.Heartbeat:Connect(function()
+        local frame = {}
+        for _, part in ipairs(LocalPlayer.Character:GetChildren()) do
+            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                frame[part.Name] = part.CFrame
+            end
+        end
+        table.insert(ghostHistory, frame)
+        if #ghostHistory > ghostDelay / ghostInterval then
+            table.remove(ghostHistory, 1)
+        end
+    end)
+
+    ghostConn2 = RunService.Heartbeat:Connect(function()
+        if #ghostHistory > 0 then
+            local data = ghostHistory[1]
+            for _, ghostPart in ipairs(ghost:GetChildren()) do
+                if ghostPart:IsA("BasePart") then
+                    local realName = ghostPart.Name:sub(7)
+                    if data[realName] then
+                        ghostPart.CFrame = data[realName]
+                    end
+                end
+            end
+        end
+    end)
+    Rayfield:Notify({
+        Title = "Ghost Follower",
+        Content = "Ghost Follower enabled",
+        Duration = 3,
+        Image = 4483362458
+    })
+end
+
+local function stopGhostTracking()
+    if ghostConn1 then ghostConn1:Disconnect() end
+    if ghostConn2 then ghostConn2:Disconnect() end
+    if ghost then ghost:Destroy() end
+    ghostTracking = false
+    Rayfield:Notify({
+        Title = "Ghost Follower",
+        Content = "Ghost Follower disabled",
+        Duration = 3,
+        Image = 4483362458
+    })
+end
 
 --// Auto Aim Logic
 local function getValidTarget()
@@ -568,10 +659,25 @@ ESPTab:CreateToggle({
     end
 })
 
+--// Visuals Tab
+VisualsTab:CreateToggle({
+    Name = "Ghost Follower",
+    CurrentValue = false,
+    Flag = "GhostFollowerToggle",
+    Callback = function(Value)
+        ghostFollower_Enabled = Value
+        if Value then
+            startGhostTracking()
+        else
+            stopGhostTracking()
+        end
+    end
+})
+
 --// Placeholder for Auto Generator (to be added later)
 -- Auto Generator code will go here when ready, automating skill checks after manual interaction with Generator
 
 --// Load Configuration
 Rayfield:LoadConfiguration()
 
-print("Yareu GUI by Grok n Eyn Loaded! Check console (F9) for Item ESP debug info.")
+print("Yareu GUI by Grok n Eyn Loaded! Check console (F9) for Item ESP and Ghost Follower debug info.")
