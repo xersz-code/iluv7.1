@@ -30,7 +30,6 @@ local Window = Rayfield:CreateWindow({
 local MainTab = Window:CreateTab("Main", 4483362458)
 local ESPTab = Window:CreateTab("ESP", 4483362458)
 local CombatTab = Window:CreateTab("Combat", 4483362458)
-local VisualsTab = Window:CreateTab("Visuals", 4483362458) -- New tab for Ghost Follower
 
 --// Variables
 local active = false
@@ -39,7 +38,6 @@ local ESP_Enabled = false
 local ESP_Survivor_Enabled = false
 local activeTwoTime = false
 local ESP_Item_Enabled = false
-local ghostFollower_Enabled = false -- Ghost Follower toggle
 local ESP_Objects = {}
 local aimDuration = 1.1
 local aimTargets = { "Jason", "Slasher", "c00lkidd", "JohnDoe", "1x1x1x1", "Noli" }
@@ -58,6 +56,14 @@ local lastTriggerTime = 0
 local aiming = false
 local originalWS, originalJP, originalAutoRotate = nil, nil, nil
 
+--// Setup Character
+local function setupCharacter(char)
+    Humanoid = char:WaitForChild("Humanoid")
+    HRP = char:WaitForChild("HumanoidRootPart")
+end
+
+if LocalPlayer.Character then setupCharacter(LocalPlayer.Character) end
+LocalPlayer.CharacterAdded:Connect(setupCharacter)
 
 --// Auto Aim Logic
 local function getValidTarget()
@@ -298,7 +304,7 @@ SurvivorsFolder.ChildAdded:Connect(function(survivor)
     end
 end)
 
---// Item ESP Logic (Fixed for Medkit and Generator)
+--// Item ESP Logic
 local function findPrimaryPart(item)
     if item.Name == "Medkit" or item.Name == "BloxyCola" then
         local itemRoot = item:FindFirstChild("ItemRoot")
@@ -562,12 +568,10 @@ ESPTab:CreateToggle({
     end
 })
 
-
-
 --// Placeholder for Auto Generator (to be added later)
 -- Auto Generator code will go here when ready, automating skill checks after manual interaction with Generator
 
 --// Load Configuration
 Rayfield:LoadConfiguration()
 
-print("Yareu GUI by Grok n Eyn Loaded! Check console (F9) for Item ESP and Ghost Follower debug info.")
+print("Yareu GUI by Grok n Eyn Loaded! Check console (F9) for Item ESP debug info.")
