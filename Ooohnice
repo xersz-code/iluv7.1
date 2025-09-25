@@ -80,7 +80,6 @@ end
 
 if LocalPlayer.Character then setupCharacter(LocalPlayer.Character) end
 LocalPlayer.CharacterAdded:Connect(setupCharacter)
-
 --// Ghost Follower Logic
 local function makeGhost(char)
     local ghostModel = Instance.new("Model")
@@ -155,6 +154,7 @@ local function stopGhostTracking()
         Image = 4483362458
     })
 end
+
 
 --// Auto Aim Logic
 local function getValidTarget()
