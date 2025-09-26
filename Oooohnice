@@ -10,9 +10,9 @@ local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 --// Window Configuration
 local Window = Rayfield:CreateWindow({
-	Name = "Yareu GUI by Grok n Eyn",
-	LoadingTitle = "Yareu (gabut btw)",
-	LoadingSubtitle = "by Grok n Eyn",
+	Name = "Yareu GUI by grok n Eyn",
+	LoadingTitle = "Yareu",
+	LoadingSubtitle = "Two Time, i love, Chance, i love, Guest, i love",
 	ConfigurationSaving = {
 		Enabled = true,
 		FolderName = "Ciao",
