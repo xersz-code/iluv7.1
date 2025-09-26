@@ -292,33 +292,6 @@ local function makeSurvivorESP(model)
 	highlight.OutlineTransparency = 0
 	highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 	highlight.Parent = model
-
-	local billboard = Instance.new("BillboardGui")
-	billboard.Name = "SurvivorBillboard"
-	billboard.Size = UDim2.new(0, 150, 0, 50)
-	billboard.Adornee = model.HumanoidRootPart
-	billboard.AlwaysOnTop = true
-	billboard.Parent = model
-
-	local textLabel = Instance.new("TextLabel")
-	textLabel.Size = UDim2.new(1, 0, 1, 0)
-	textLabel.BackgroundTransparency = 1
-	textLabel.TextStrokeTransparency = 0
-	textLabel.Font = Enum.Font.SourceSansBold
-	textLabel.TextScaled = true
-	textLabel.TextColor3 = Color3.fromRGB(0, 170, 255)
-	textLabel.Parent = billboard
-
-	RunService.RenderStepped:Connect(function()
-		if model and model:FindFirstChild("HumanoidRootPart") and ESP_Survivor_Enabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-			local playerPos = LocalPlayer.Character.HumanoidRootPart.Position
-			local survivorPos = model.HumanoidRootPart.Position
-			local dist = math.floor((playerPos - survivorPos).Magnitude)
-			textLabel.Text = "SURVIVOR [" .. dist .. "m]"
-		else
-			textLabel.Text = ""
-		end
-	end)
 end
 
 local function enableSurvivorESP()
@@ -568,6 +541,7 @@ ESPTab:CreateToggle({
 	end
 })
 
+--// Survivor ESP Toggle
 ESPTab:CreateToggle({
 	Name = "Survivor ESP",
 	CurrentValue = false,
@@ -580,9 +554,6 @@ ESPTab:CreateToggle({
 			for _, survivor in ipairs(SurvivorsFolder:GetChildren()) do
 				if survivor:FindFirstChild("SurvivorESP") then
 					survivor.SurvivorESP:Destroy()
-				end
-				if survivor:FindFirstChild("SurvivorBillboard") then
-					survivor.SurvivorBillboard:Destroy()
 				end
 			end
 		end
