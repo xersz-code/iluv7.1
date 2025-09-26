@@ -15,7 +15,7 @@ local Window = Rayfield:CreateWindow({
     LoadingSubtitle = "by Grok n Eyn",
     ConfigurationSaving = {
         Enabled = true,
-        FolderName = "YareuCheat",
+        FolderName = "Ciao",
         FileName = "Config"
     },
     Discord = {
@@ -49,7 +49,11 @@ local trackedAnimations = {
     ["81698196845041"] = true
 }
 local aimTargetsTwoTime = { "Slasher", "Jason", "c00lkidd", "JohnDoe", "1x1x1x1", "Noli" }
-local trackedAnimationsTwoTime = { ["86545133269813"] = true }
+local trackedAnimationsTwoTime = { 
+["86545133269813"] = true, 
+["136007065400978"] true, 
+["140703210927645"] true
+}
 local ItemNames = {"Medkit", "BloxyCola", "Generator"}
 local Humanoid, HRP = nil, nil
 local lastTriggerTime = 0
@@ -280,12 +284,7 @@ local function makeSurvivorESP(model)
     textLabel.TextColor3 = Color3.fromRGB(0, 170, 255)
     textLabel.Parent = billboard
     RunService.RenderStepped:Connect(function()
-        if ESP_Survivor_Enabled and model and model:FindFirstChildOfClass("Humanoid") then
-            local hum = model:FindFirstChildOfClass("Humanoid")
-            textLabel.Text = model.Name .. " | " .. math.floor(hum.Health) .. "/" .. math.floor(hum.MaxHealth)
-        else
-            textLabel.Text = ""
-        end
+        
     end)
 end
 
