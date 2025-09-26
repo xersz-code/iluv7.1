@@ -5,25 +5,25 @@ local LocalPlayer = Players.LocalPlayer
 local KillersFolder = workspace:WaitForChild("Players"):WaitForChild("Killers")
 local SurvivorsFolder = workspace:WaitForChild("Players"):WaitForChild("Survivors")
 
---// Load Rayfield Library
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+--// Load ArrayField Library
+local ArrayField = loadstring(game:HttpGet("https://raw.githubusercontent.com/UI-Interface/CustomFIeld/main/RayField.lua"))()
 
---// Window
-local Window = Rayfield:CreateWindow({
-    Name = "Yareu GUI by Grok n Eyn",
-    LoadingTitle = "Yareu (gabut btw)",
-    LoadingSubtitle = "by Grok n Eyn",
-    ConfigurationSaving = {
-        Enabled = true,
-        FolderName = "YareuCheat",
-        FileName = "Config"
-    },
-    Discord = {
-        Enabled = false,
-        Invite = "",
-        RememberJoins = true
-    },
-    KeySystem = false
+--// Window Configuration
+local Window = ArrayField:CreateWindow({
+	Name = "Yareu GUI by grok n Eyn",
+	LoadingTitle = "Yareu",
+	LoadingSubtitle = "Two Time, i love, Chance, i love, Guest, i love",
+	ConfigurationSaving = {
+		Enabled = true,
+		FolderName = "Ciao",
+		FileName = "Config"
+	},
+	Discord = {
+		Enabled = false,
+		Invite = "",
+		RememberJoins = true
+	},
+	KeySystem = false
 })
 
 --// Tabs
@@ -42,15 +42,19 @@ local ESP_Objects = {}
 local aimDuration = 1.1
 local aimTargets = { "Jason", "Slasher", "c00lkidd", "JohnDoe", "1x1x1x1", "Noli" }
 local trackedAnimations = {
-    ["103601716322988"] = true,
-    ["133491532453922"] = true,
-    ["86371356500204"] = true,
-    ["76649505662612"] = true,
-    ["81698196845041"] = true
+	["103601716322988"] = true,
+	["133491532453922"] = true,
+	["86371356500204"] = true,
+	["76649505662612"] = true,
+	["81698196845041"] = true
 }
 local aimTargetsTwoTime = { "Slasher", "Jason", "c00lkidd", "JohnDoe", "1x1x1x1", "Noli" }
-local trackedAnimationsTwoTime = { ["86545133269813"] = true }
-local ItemNames = {"Medkit", "BloxyCola", "Generator"}
+local trackedAnimationsTwoTime = {
+	["86545133269813"] = true,
+	["136007065400978"] = true,
+	["140703210927645"] = true
+}
+local ItemNames = { "Medkit", "BloxyCola", "Generator" }
 local Humanoid, HRP = nil, nil
 local lastTriggerTime = 0
 local aiming = false
@@ -58,520 +62,521 @@ local originalWS, originalJP, originalAutoRotate = nil, nil, nil
 
 --// Setup Character
 local function setupCharacter(char)
-    Humanoid = char:WaitForChild("Humanoid")
-    HRP = char:WaitForChild("HumanoidRootPart")
+	Humanoid = char:WaitForChild("Humanoid")
+	HRP = char:WaitForChild("HumanoidRootPart")
 end
 
-if LocalPlayer.Character then setupCharacter(LocalPlayer.Character) end
+if LocalPlayer.Character then
+	setupCharacter(LocalPlayer.Character)
+end
 LocalPlayer.CharacterAdded:Connect(setupCharacter)
 
 --// Auto Aim Logic
 local function getValidTarget()
-    local killersFolder = workspace:FindFirstChild("Players") and workspace.Players:FindFirstChild("Killers")
-    if killersFolder then
-        for _, name in ipairs(aimTargets) do
-            local target = killersFolder:FindFirstChild(name)
-            if target and target:FindFirstChild("HumanoidRootPart") then
-                return target.HumanoidRootPart
-            end
-        end
-    end
-    return nil
+	local killersFolder = workspace:FindFirstChild("Players") and workspace.Players:FindFirstChild("Killers")
+	if killersFolder then
+		for _, name in ipairs(aimTargets) do
+			local target = killersFolder:FindFirstChild(name)
+			if target and target:FindFirstChild("HumanoidRootPart") then
+				return target.HumanoidRootPart
+			end
+		end
+	end
+	return nil
 end
 
 local function getPlayingAnimationIds()
-    local ids = {}
-    if Humanoid then
-        for _, track in ipairs(Humanoid:GetPlayingAnimationTracks()) do
-            if track.Animation and track.Animation.AnimationId then
-                local id = track.Animation.AnimationId:match("%d+")
-                if id then ids[id] = true end
-            end
-        end
-    end
-    return ids
+	local ids = {}
+	if Humanoid then
+		for _, track in ipairs(Humanoid:GetPlayingAnimationTracks()) do
+			if track.Animation and track.Animation.AnimationId then
+				local id = track.Animation.AnimationId:match("%d+")
+				if id then
+					ids[id] = true
+				end
+			end
+		end
+	end
+	return ids
 end
 
 --// Auto Aim Two Time Logic
 local function getValidTargetTwoTime()
-    local killersFolder = workspace:FindFirstChild("Players") and workspace.Players:FindFirstChild("Killers")
-    if killersFolder then
-        for _, name in ipairs(aimTargetsTwoTime) do
-            local target = killersFolder:FindFirstChild(name)
-            if target and target:FindFirstChild("HumanoidRootPart") then
-                return target.HumanoidRootPart
-            end
-        end
-    end
-    return nil
+	local killersFolder = workspace:FindFirstChild("Players") and workspace.Players:FindFirstChild("Killers")
+	if killersFolder then
+		for _, name in ipairs(aimTargetsTwoTime) do
+			local target = killersFolder:FindFirstChild(name)
+			if target and target:FindFirstChild("HumanoidRootPart") then
+				return target.HumanoidRootPart
+			end
+		end
+	end
+	return nil
 end
 
 local function getPlayingAnimationIdsTwoTime()
-    local ids = {}
-    if Humanoid then
-        for _, track in ipairs(Humanoid:GetPlayingAnimationTracks()) do
-            if track.Animation and track.Animation.AnimationId then
-                local id = track.Animation.AnimationId:match("%d+")
-                if id then ids[id] = true end
-            end
-        end
-    end
-    return ids
+	local ids = {}
+	if Humanoid then
+		for _, track in ipairs(Humanoid:GetPlayingAnimationTracks()) do
+			if track.Animation and track.Animation.AnimationId then
+				local id = track.Animation.AnimationId:match("%d+")
+				if id then
+					ids[id] = true
+				end
+			end
+		end
+	end
+	return ids
 end
 
+--// Main Update Loop
 RunService.RenderStepped:Connect(function()
-    -- Auto Aim
-    if active and Humanoid and HRP then
-        local playing = getPlayingAnimationIds()
-        local triggered = false
-        for id in pairs(trackedAnimations) do
-            if playing[id] then triggered = true break end
-        end
-        if triggered then
-            lastTriggerTime = tick()
-            aiming = true
-        end
-        if aiming and tick() - lastTriggerTime <= aimDuration then
-            if not originalWS then
-                originalWS, originalJP, originalAutoRotate = Humanoid.WalkSpeed, Humanoid.JumpPower, Humanoid.AutoRotate
-            end
-            Humanoid.AutoRotate = false
-            HRP.AssemblyAngularVelocity = Vector3.zero
-            local targetHRP = getValidTarget()
-            if targetHRP then
-                local prediction = tonumber(Rayfield.Flags["PredictionSlider"].Value) or 0
-                local predictedPos = targetHRP.Position + (targetHRP.CFrame.LookVector * prediction)
-                local direction = (predictedPos - HRP.Position).Unit
-                local yRot = math.atan2(-direction.X, -direction.Z)
-                HRP.CFrame = CFrame.new(HRP.Position) * CFrame.Angles(0, yRot, 0)
-            end
-        elseif aiming then
-            aiming = false
-            if originalWS and originalJP and originalAutoRotate ~= nil then
-                Humanoid.WalkSpeed, Humanoid.JumpPower, Humanoid.AutoRotate = originalWS, originalJP, originalAutoRotate
-                originalWS, originalJP, originalAutoRotate = nil, nil, nil
-            end
-        end
-    end
+	-- Auto Aim
+	if active and Humanoid and HRP then
+		local playing = getPlayingAnimationIds()
+		local triggered = false
+		for id in pairs(trackedAnimations) do
+			if playing[id] then
+				triggered = true
+				break
+			end
+		end
+		if triggered then
+			lastTriggerTime = tick()
+			aiming = true
+		end
+		if aiming and tick() - lastTriggerTime <= aimDuration then
+			if not originalWS then
+				originalWS = Humanoid.WalkSpeed
+				originalJP = Humanoid.JumpPower
+				originalAutoRotate = Humanoid.AutoRotate
+			end
+			Humanoid.AutoRotate = false
+			HRP.AssemblyAngularVelocity = Vector3.zero
+			local targetHRP = getValidTarget()
+			if targetHRP then
+				local prediction = tonumber(ArrayField.Flags["PredictionSlider"].Value) or 0
+				local predictedPos = targetHRP.Position + (targetHRP.CFrame.LookVector * prediction)
+				local direction = (predictedPos - HRP.Position).Unit
+				local yRot = math.atan2(-direction.X, -direction.Z)
+				HRP.CFrame = CFrame.new(HRP.Position) * CFrame.Angles(0, yRot, 0)
+			end
+		elseif aiming then
+			aiming = false
+			if originalWS and originalJP and originalAutoRotate ~= nil then
+				Humanoid.WalkSpeed = originalWS
+				Humanoid.JumpPower = originalJP
+				Humanoid.AutoRotate = originalAutoRotate
+				originalWS, originalJP, originalAutoRotate = nil, nil, nil
+			end
+		end
+	end
 
-    -- Auto Aim Two Time
-    if activeTwoTime and Humanoid and HRP then
-        local playing = getPlayingAnimationIdsTwoTime()
-        for id in pairs(trackedAnimationsTwoTime) do
-            if playing[id] then
-                local targetHRP = getValidTargetTwoTime()
-                if targetHRP then
-                    HRP.CFrame = CFrame.new(HRP.Position, targetHRP.Position)
-                end
-                break
-            end
-        end
-    end
+	-- Auto Aim Two Time
+	if activeTwoTime and Humanoid and HRP then
+		local playing = getPlayingAnimationIdsTwoTime()
+		for id in pairs(trackedAnimationsTwoTime) do
+			if playing[id] then
+				local targetHRP = getValidTargetTwoTime()
+				if targetHRP then
+					HRP.CFrame = CFrame.new(HRP.Position, targetHRP.Position)
+				end
+				break
+			end
+		end
+	end
 end)
 
 --// Infinite Stamina Logic
 local function enableInfiniteStamina()
-    local success, StaminaModule = pcall(function()
-        return require(game.ReplicatedStorage.Systems.Character.Game.Sprinting)
-    end)
-    if not success or not StaminaModule then
-        warn("Failed to load StaminaModule")
-        return
-    end
-    StaminaModule.StaminaLossDisabled = true
-    task.spawn(function()
-        while infiniteStamina and StaminaModule do
-            task.wait(0.1)
-            StaminaModule.Stamina = StaminaModule.MaxStamina
-            StaminaModule.StaminaChanged:Fire()
-        end
-    end)
+	local success, StaminaModule = pcall(function()
+		return require(game.ReplicatedStorage.Systems.Character.Game.Sprinting)
+	end)
+	if not success or not StaminaModule then
+		warn("Failed to load StaminaModule")
+		return
+	end
+	StaminaModule.StaminaLossDisabled = true
+	task.spawn(function()
+		while infiniteStamina and StaminaModule do
+			StaminaModule.Stamina = StaminaModule.MaxStamina
+			StaminaModule.StaminaChanged:Fire()
+			task.wait(0.1)
+		end
+	end)
 end
 
 LocalPlayer.CharacterAdded:Connect(function()
-    task.wait(1)
-    if infiniteStamina then enableInfiniteStamina() end
+	task.wait(1)
+	if infiniteStamina then
+		enableInfiniteStamina()
+	end
 end)
 
 --// Killer ESP Logic
 local function makeESP(model)
-    if not model:FindFirstChild("HumanoidRootPart") then return end
-    local highlight = Instance.new("Highlight")
-    highlight.Name = "KillerESP"
-    highlight.FillTransparency = 0.2
-    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-    highlight.OutlineTransparency = 0
-    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    highlight.Parent = model
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "DistanceESP"
-    billboard.Size = UDim2.new(0, 150, 0, 50)
-    billboard.Adornee = model:FindFirstChild("HumanoidRootPart")
-    billboard.AlwaysOnTop = true
-    billboard.Parent = model
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.BackgroundTransparency = 1
-    textLabel.TextStrokeTransparency = 0
-    textLabel.Font = Enum.Font.SourceSansBold
-    textLabel.TextScaled = true
-    textLabel.Parent = billboard
-    RunService.RenderStepped:Connect(function()
-        if model and model:FindFirstChild("HumanoidRootPart") and ESP_Enabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            local playerPos = LocalPlayer.Character.HumanoidRootPart.Position
-            local killerPos = model.HumanoidRootPart.Position
-            local dist = (playerPos - killerPos).Magnitude
-            local killerLook = model.HumanoidRootPart.CFrame.LookVector
-            local directionToPlayer = (playerPos - killerPos).Unit
-            local dot = killerLook:Dot(directionToPlayer)
-            if dot < 0 then
-                textLabel.Text = "KILLER [" .. math.floor(dist) .. "m] (BEHIND)"
-                textLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
-                highlight.FillColor = Color3.fromRGB(0, 255, 0)
-            else
-                textLabel.Text = "KILLER [" .. math.floor(dist) .. "m]"
-                textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-                highlight.FillColor = Color3.fromRGB(255, 0, 0)
-            end
-        elseif textLabel then
-            textLabel.Text = ""
-        end
-    end)
+	if not model:FindFirstChild("HumanoidRootPart") then
+		return
+	end
+	local highlight = Instance.new("Highlight")
+	highlight.Name = "KillerESP"
+	highlight.FillTransparency = 0.2
+	highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+	highlight.OutlineTransparency = 0
+	highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	highlight.Parent = model
+
+	local billboard = Instance.new("BillboardGui")
+	billboard.Name = "DistanceESP"
+	billboard.Size = UDim2.new(0, 150, 0, 50)
+	billboard.Adornee = model.HumanoidRootPart
+	billboard.AlwaysOnTop = true
+	billboard.Parent = model
+
+	local textLabel = Instance.new("TextLabel")
+	textLabel.Size = UDim2.new(1, 0, 1, 0)
+	textLabel.BackgroundTransparency = 1
+	textLabel.TextStrokeTransparency = 0
+	textLabel.Font = Enum.Font.SourceSansBold
+	textLabel.TextScaled = true
+	textLabel.Parent = billboard
+
+	RunService.RenderStepped:Connect(function()
+		if model and model:FindFirstChild("HumanoidRootPart") and ESP_Enabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			local playerPos = LocalPlayer.Character.HumanoidRootPart.Position
+			local killerPos = model.HumanoidRootPart.Position
+			local dist = (playerPos - killerPos).Magnitude
+			local killerLook = model.HumanoidRootPart.CFrame.LookVector
+			local directionToPlayer = (playerPos - killerPos).Unit
+			local dot = killerLook:Dot(directionToPlayer)
+			if dot < 0 then
+				textLabel.Text = "KILLER [" .. math.floor(dist) .. "m] (BEHIND)"
+				textLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+				highlight.FillColor = Color3.fromRGB(0, 255, 0)
+			else
+				textLabel.Text = "KILLER [" .. math.floor(dist) .. "m]"
+				textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+				highlight.FillColor = Color3.fromRGB(255, 0, 0)
+			end
+		else
+			textLabel.Text = ""
+		end
+	end)
 end
 
 local function enableESP()
-    for _, killer in ipairs(KillersFolder:GetChildren()) do
-        if not killer:FindFirstChild("KillerESP") then
-            makeESP(killer)
-        end
-    end
+	for _, killer in ipairs(KillersFolder:GetChildren()) do
+		if not killer:FindFirstChild("KillerESP") then
+			makeESP(killer)
+		end
+	end
 end
 
 KillersFolder.ChildAdded:Connect(function(killer)
-    if ESP_Enabled then
-        killer:WaitForChild("HumanoidRootPart")
-        makeESP(killer)
-    end
+	if ESP_Enabled then
+		killer:WaitForChild("HumanoidRootPart")
+		makeESP(killer)
+	end
 end)
 
 --// Survivor ESP Logic
 local function makeSurvivorESP(model)
-    if not model:FindFirstChild("HumanoidRootPart") or not model:FindFirstChildOfClass("Humanoid") then return end
-    local highlight = Instance.new("Highlight")
-    highlight.Name = "SurvivorESP"
-    highlight.FillColor = Color3.fromRGB(0, 170, 255)
-    highlight.FillTransparency = 0.2
-    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-    highlight.OutlineTransparency = 0
-    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    highlight.Parent = model
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "SurvivorBillboard"
-    billboard.Size = UDim2.new(0, 150, 0, 50)
-    billboard.Adornee = model.HumanoidRootPart
-    billboard.AlwaysOnTop = true
-    billboard.Parent = model
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.BackgroundTransparency = 1
-    textLabel.TextStrokeTransparency = 0
-    textLabel.Font = Enum.Font.SourceSansBold
-    textLabel.TextScaled = true
-    textLabel.TextColor3 = Color3.fromRGB(0, 170, 255)
-    textLabel.Parent = billboard
-    RunService.RenderStepped:Connect(function()
-        if ESP_Survivor_Enabled and model and model:FindFirstChildOfClass("Humanoid") then
-            local hum = model:FindFirstChildOfClass("Humanoid")
-            textLabel.Text = model.Name .. " | " .. math.floor(hum.Health) .. "/" .. math.floor(hum.MaxHealth)
-        else
-            textLabel.Text = ""
-        end
-    end)
+	if not model:FindFirstChild("HumanoidRootPart") or not model:FindFirstChildOfClass("Humanoid") then
+		return
+	end
+	local highlight = Instance.new("Highlight")
+	highlight.Name = "SurvivorESP"
+	highlight.FillColor = Color3.fromRGB(0, 170, 255)
+	highlight.FillTransparency = 0.2
+	highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+	highlight.OutlineTransparency = 0
+	highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	highlight.Parent = model
 end
 
 local function enableSurvivorESP()
-    for _, survivor in ipairs(SurvivorsFolder:GetChildren()) do
-        if not survivor:FindFirstChild("SurvivorESP") then
-            makeSurvivorESP(survivor)
-        end
-    end
+	for _, survivor in ipairs(SurvivorsFolder:GetChildren()) do
+		if not survivor:FindFirstChild("SurvivorESP") then
+			makeSurvivorESP(survivor)
+		end
+	end
 end
 
 SurvivorsFolder.ChildAdded:Connect(function(survivor)
-    if ESP_Survivor_Enabled then
-        survivor:WaitForChild("HumanoidRootPart")
-        makeSurvivorESP(survivor)
-    end
+	if ESP_Survivor_Enabled then
+		survivor:WaitForChild("HumanoidRootPart")
+		makeSurvivorESP(survivor)
+	end
 end)
 
 --// Item ESP Logic
 local function findPrimaryPart(item)
-    if item.Name == "Medkit" or item.Name == "BloxyCola" then
-        local itemRoot = item:FindFirstChild("ItemRoot")
-        if itemRoot and itemRoot:IsA("BasePart") then
-            print("Found ItemRoot for " .. item.Name)
-            return itemRoot
-        end
-    end
-    if item.Name == "Generator" then
-        if item.PrimaryPart then
-            print("Found PrimaryPart for Generator")
-            return item.PrimaryPart
-        end
-        for _, part in ipairs(item:GetDescendants()) do
-            if part:IsA("BasePart") then
-                print("Found BasePart for Generator: " .. part.Name)
-                return part
-            end
-        end
-    end
-    local partNames = {"Handle", "Main", "Part", "Base", "PrimaryPart"}
-    for _, name in ipairs(partNames) do
-        local part = item:FindFirstChild(name)
-        if part and part:IsA("BasePart") then
-            print("Found fallback part " .. name .. " for " .. item.Name)
-            return part
-        end
-    end
-    warn("No valid part found for item: " .. item.Name .. " in " .. item:GetFullName())
-    return nil
+	if item.Name == "Medkit" or item.Name == "BloxyCola" then
+		local itemRoot = item:FindFirstChild("ItemRoot")
+		if itemRoot and itemRoot:IsA("BasePart") then
+			return itemRoot
+		end
+	end
+	if item.Name == "Generator" then
+		if item.PrimaryPart then
+			return item.PrimaryPart
+		end
+		for _, part in ipairs(item:GetDescendants()) do
+			if part:IsA("BasePart") then
+				return part
+			end
+		end
+	end
+	local partNames = { "Handle", "Main", "Part", "Base", "PrimaryPart" }
+	for _, name in ipairs(partNames) do
+		local part = item:FindFirstChild(name)
+		if part and part:IsA("BasePart") then
+			return part
+		end
+	end
+	warn("No valid part found for item: " .. item.Name)
+	return nil
 end
 
 local function createItemESP(item)
-    local primaryPart = findPrimaryPart(item)
-    if not primaryPart then
-        warn("No valid part found for item: " .. item.Name .. " in " .. item:GetFullName())
-        return
-    end
-    print("Creating ESP for item: " .. item.Name .. " at " .. item:GetFullName())
-    local highlight = Instance.new("Highlight")
-    highlight.Name = "ItemESP"
-    highlight.FillTransparency = 1
-    highlight.OutlineColor = Color3.fromRGB(255, 215, 0)
-    highlight.OutlineTransparency = 0
-    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    highlight.Parent = item
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "ItemBillboard"
-    billboard.Size = item.Name == "Generator" and UDim2.new(0, 80, 0, 40) or UDim2.new(0, 100, 0, 50)
-    billboard.Adornee = primaryPart
-    billboard.AlwaysOnTop = true
-    billboard.StudsOffset = Vector3.new(0, 2, 0)
-    billboard.Parent = item
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.BackgroundTransparency = 1
-    textLabel.TextStrokeTransparency = 0
-    textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    textLabel.Font = Enum.Font.SourceSansBold
-    textLabel.TextScaled = true
-    textLabel.TextSize = item.Name == "Generator" and 10 or 14
-    textLabel.Text = item.Name .. "\n[Loading...]"
-    textLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
-    textLabel.Parent = billboard
-    ESP_Objects[item] = {highlight = highlight, billboard = billboard, textLabel = textLabel}
-    local connection
-    connection = RunService.RenderStepped:Connect(function()
-        if not ESP_Item_Enabled or not item.Parent or not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            if ESP_Objects[item] then
-                if ESP_Objects[item].highlight then ESP_Objects[item].highlight:Destroy() end
-                if ESP_Objects[item].billboard then ESP_Objects[item].billboard:Destroy() end
-                ESP_Objects[item] = nil
-            end
-            connection:Disconnect()
-            return
-        end
-        local playerPos = LocalPlayer.Character.HumanoidRootPart.Position
-        local itemPos = primaryPart.Position
-        local dist = math.floor((playerPos - itemPos).Magnitude)
-        textLabel.Text = item.Name .. "\n[" .. dist .. "m]"
-    end)
+	local primaryPart = findPrimaryPart(item)
+	if not primaryPart then
+		return
+	end
+	local highlight = Instance.new("Highlight")
+	highlight.Name = "ItemESP"
+	highlight.FillTransparency = 1
+	highlight.OutlineColor = Color3.fromRGB(255, 215, 0)
+	highlight.OutlineTransparency = 0
+	highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	highlight.Parent = item
+
+	local billboard = Instance.new("BillboardGui")
+	billboard.Name = "ItemBillboard"
+	billboard.Size = item.Name == "Generator" and UDim2.new(0, 80, 0, 40) or UDim2.new(0, 100, 0, 50)
+	billboard.Adornee = primaryPart
+	billboard.AlwaysOnTop = true
+	billboard.StudsOffset = Vector3.new(0, 2, 0)
+	billboard.Parent = item
+
+	local textLabel = Instance.new("TextLabel")
+	textLabel.Size = UDim2.new(1, 0, 1, 0)
+	textLabel.BackgroundTransparency = 1
+	textLabel.TextStrokeTransparency = 0
+	textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+	textLabel.Font = Enum.Font.SourceSansBold
+	textLabel.TextScaled = true
+	textLabel.TextSize = item.Name == "Generator" and 10 or 14
+	textLabel.Text = item.Name .. "\n[Loading...]"
+	textLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
+	textLabel.Parent = billboard
+
+	ESP_Objects[item] = { highlight = highlight, billboard = billboard, textLabel = textLabel }
+
+	local connection
+	connection = RunService.RenderStepped:Connect(function()
+		if not ESP_Item_Enabled or not item.Parent or not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			if ESP_Objects[item] then
+				if ESP_Objects[item].highlight then
+					ESP_Objects[item].highlight:Destroy()
+				end
+				if ESP_Objects[item].billboard then
+					ESP_Objects[item].billboard:Destroy()
+				end
+				ESP_Objects[item] = nil
+			end
+			connection:Disconnect()
+			return
+		end
+		local playerPos = LocalPlayer.Character.HumanoidRootPart.Position
+		local itemPos = primaryPart.Position
+		local dist = math.floor((playerPos - itemPos).Magnitude)
+		textLabel.Text = item.Name .. "\n[" .. dist .. "m]"
+	end)
 end
 
 local function enableItemESP()
-    local mapFolder = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ingame") and workspace.Map.Ingame:FindFirstChild("Map")
-    if not mapFolder then
-        print("Waiting for workspace.Map.Ingame.Map to load...")
-        while not mapFolder do
-            mapFolder = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ingame") and workspace.Map.Ingame:FindFirstChild("Map")
-            task.wait(1)
-        end
-        print("Map folder found at workspace.Map.Ingame.Map")
-    end
+	local mapFolder = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ingame") and workspace.Map.Ingame:FindFirstChild("Map")
+	if not mapFolder then
+		while not mapFolder do
+			mapFolder = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ingame") and workspace.Map.Ingame:FindFirstChild("Map")
+			task.wait(1)
+		end
+	end
 
-    local function checkForItems()
-        local itemsFound = false
-        print("Scanning workspace.Map.Ingame.Map for items...")
-        for _, obj in ipairs(mapFolder:GetChildren()) do
-            print("Found object: " .. obj.Name .. " (Class: " .. obj.ClassName .. ", Path: " .. obj:GetFullName() .. ")")
-            if (obj:IsA("Tool") or obj:IsA("Model")) and not obj:FindFirstChild("ItemESP") then
-                for _, name in ipairs(ItemNames) do
-                    if obj.Name == name then
-                        print("Matched item: " .. obj.Name)
-                        createItemESP(obj)
-                        itemsFound = true
-                    end
-                end
-            end
-        end
-        if itemsFound then
-            Rayfield:Notify({
-                Title = "Item ESP",
-                Content = "Items detected: Medkit, BloxyCola, and/or Generator",
-                Duration = 3,
-                Image = 4483362458
-            })
-        end
-        return itemsFound
-    end
+	local function checkForItems()
+		local itemsFound = false
+		for _, obj in ipairs(mapFolder:GetChildren()) do
+			if (obj:IsA("Tool") or obj:IsA("Model")) and not obj:FindFirstChild("ItemESP") then
+				for _, name in ipairs(ItemNames) do
+					if obj.Name == name then
+						createItemESP(obj)
+						itemsFound = true
+					end
+				end
+			end
+		end
+		if itemsFound then
+			ArrayField:Notify({
+				Title = "Item ESP",
+				Content = "Items detected: Medkit, BloxyCola, and/or Generator",
+				Duration = 3,
+				Image = 4483362458
+			})
+		end
+		return itemsFound
+	end
 
-    if not checkForItems() then
-        print("No items found, starting polling for Medkit, BloxyCola, Generator...")
-        task.spawn(function()
-            while ESP_Item_Enabled and not checkForItems() do
-                task.wait(2)
-            end
-            if ESP_Item_Enabled then
-                print("Items found after polling, ESP enabled")
-            end
-        end)
-    end
+	if not checkForItems() then
+		task.spawn(function()
+			while ESP_Item_Enabled and not checkForItems() do
+				task.wait(2)
+			end
+		end)
+	end
 end
 
 local function disableItemESP()
-    for item, espData in pairs(ESP_Objects) do
-        if espData.highlight then espData.highlight:Destroy() end
-        if espData.billboard then espData.billboard:Destroy() end
-    end
-    ESP_Objects = {}
-    print("Item ESP disabled, cleared all ESP objects")
+	for item, espData in pairs(ESP_Objects) do
+		if espData.highlight then
+			espData.highlight:Destroy()
+		end
+		if espData.billboard then
+			espData.billboard:Destroy()
+		end
+	end
+	ESP_Objects = {}
 end
 
 local mapFolder = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ingame") and workspace.Map.Ingame:FindFirstChild("Map")
 if mapFolder then
-    mapFolder.ChildAdded:Connect(function(child)
-        if ESP_Item_Enabled and (child:IsA("Tool") or child:IsA("Model")) then
-            task.wait(0.1)
-            for _, name in ipairs(ItemNames) do
-                if child.Name == name and not child:FindFirstChild("ItemESP") then
-                    print("New item spawned: " .. child.Name .. " at " .. child:GetFullName())
-                    createItemESP(child)
-                    Rayfield:Notify({
-                        Title = "Item ESP",
-                        Content = "New item detected: " .. child.Name,
-                        Duration = 3,
-                        Image = 4483362458
-                    })
-                end
-            end
-        end
-    end)
+	mapFolder.ChildAdded:Connect(function(child)
+		if ESP_Item_Enabled and (child:IsA("Tool") or child:IsA("Model")) then
+			task.wait(0.1)
+			for _, name in ipairs(ItemNames) do
+				if child.Name == name and not child:FindFirstChild("ItemESP") then
+					createItemESP(child)
+					ArrayField:Notify({
+						Title = "Item ESP",
+						Content = "New item detected: " .. child.Name,
+						Duration = 3,
+						Image = 4483362458
+					})
+				end
+			end
+		end
+	end)
 end
 
 task.spawn(function()
-    task.wait(5)
-    if ESP_Item_Enabled then
-        enableItemESP()
-    end
+	task.wait(5)
+	if ESP_Item_Enabled then
+		enableItemESP()
+	end
 end)
 
---// Main Tab
+--// Main Tab UI
 MainTab:CreateSlider({
-    Name = "Prediction",
-    Range = {0, 20},
-    Increment = 1,
-    Suffix = "Studs",
-    CurrentValue = 4,
-    Flag = "PredictionSlider",
-    Callback = function(Value)
-        -- Prediction is updated via slider
-    end
+	Name = "Prediction",
+	Range = { 0, 20 },
+	Increment = 1,
+	Suffix = "Studs",
+	CurrentValue = 4,
+	Flag = "PredictionSlider",
+	Callback = function(Value)
+		-- Prediction is updated via slider
+	end
 })
 
 MainTab:CreateToggle({
-    Name = "Infinite Stamina",
-    CurrentValue = false,
-    Flag = "InfiniteStaminaToggle",
-    Callback = function(Value)
-        infiniteStamina = Value
-        if Value then enableInfiniteStamina() end
-    end
+	Name = "Infinite Stamina",
+	CurrentValue = false,
+	Flag = "InfiniteStaminaToggle",
+	Callback = function(Value)
+		infiniteStamina = Value
+		if Value then
+			enableInfiniteStamina()
+		end
+	end
 })
 
---// Combat Tab
+--// Combat Tab UI
 CombatTab:CreateToggle({
-    Name = "Auto Aim",
-    CurrentValue = false,
-    Flag = "AutoAimToggle",
-    Callback = function(Value)
-        active = Value
-    end
+	Name = "Auto Aim",
+	CurrentValue = false,
+	Flag = "AutoAimToggle",
+	Callback = function(Value)
+		active = Value
+	end
 })
 
 CombatTab:CreateToggle({
-    Name = "Auto Aim Two Time",
-    CurrentValue = false,
-    Flag = "AutoAimTwoTimeToggle",
-    Callback = function(Value)
-        activeTwoTime = Value
-    end
+	Name = "Auto Aim Two Time",
+	CurrentValue = false,
+	Flag = "AutoAimTwoTimeToggle",
+	Callback = function(Value)
+		activeTwoTime = Value
+	end
 })
 
---// ESP Tab
+--// ESP Tab UI
 ESPTab:CreateToggle({
-    Name = "Killer ESP",
-    CurrentValue = false,
-    Flag = "KillerESPToggle",
-    Callback = function(Value)
-        ESP_Enabled = Value
-        if Value then
-            enableESP()
-        else
-            for _, killer in ipairs(KillersFolder:GetChildren()) do
-                if killer:FindFirstChild("KillerESP") then killer.KillerESP:Destroy() end
-                if killer:FindFirstChild("DistanceESP") then killer.DistanceESP:Destroy() end
-            end
-        end
-    end
-})
-
-ESPTab:CreateToggle({
-    Name = "Survivor ESP",
-    CurrentValue = false,
-    Flag = "SurvivorESPToggle",
-    Callback = function(Value)
-        ESP_Survivor_Enabled = Value
-        if Value then
-            enableSurvivorESP()
-        else
-            for _, survivor in ipairs(SurvivorsFolder:GetChildren()) do
-                if survivor:FindFirstChild("SurvivorESP") then survivor.SurvivorESP:Destroy() end
-                if survivor:FindFirstChild("SurvivorBillboard") then survivor.SurvivorBillboard:Destroy() end
-            end
-        end
-    end
+	Name = "Killer ESP",
+	CurrentValue = false,
+	Flag = "KillerESPToggle",
+	Callback = function(Value)
+		ESP_Enabled = Value
+		if Value then
+			enableESP()
+		else
+			for _, killer in ipairs(KillersFolder:GetChildren()) do
+				if killer:FindFirstChild("KillerESP") then
+					killer.KillerESP:Destroy()
+				end
+				if killer:FindFirstChild("DistanceESP") then
+					killer.DistanceESP:Destroy()
+				end
+			end
+		end
+	end
 })
 
 ESPTab:CreateToggle({
-    Name = "Item ESP (Medkit, BloxyCola, Generator)",
-    CurrentValue = false,
-    Flag = "ItemESPToggle",
-    Callback = function(Value)
-        ESP_Item_Enabled = Value
-        if Value then
-            print("Item ESP toggled ON")
-            enableItemESP()
-        else
-            print("Item ESP toggled OFF")
-            disableItemESP()
-        end
-    end
+	Name = "Survivor ESP",
+	CurrentValue = false,
+	Flag = "SurvivorESPToggle",
+	Callback = function(Value)
+		ESP_Survivor_Enabled = Value
+		if Value then
+			enableSurvivorESP()
+		else
+			for _, survivor in ipairs(SurvivorsFolder:GetChildren()) do
+				if survivor:FindFirstChild("SurvivorESP") then
+					survivor.SurvivorESP:Destroy()
+				end
+			end
+		end
+	end
 })
 
---// Placeholder for Auto Generator (to be added later)
--- Auto Generator code will go here when ready, automating skill checks after manual interaction with Generator
+ESPTab:CreateToggle({
+	Name = "Item ESP (Medkit, BloxyCola, Generator)",
+	CurrentValue = false,
+	Flag = "ItemESPToggle",
+	Callback = function(Value)
+		ESP_Item_Enabled = Value
+		if Value then
+			enableItemESP()
+		else
+			disableItemESP()
+		end
+	end
+})
+
+--// Placeholder for Auto Generator
+-- Auto Generator code will be implemented here for automating skill checks after manual interaction
 
 --// Load Configuration
-Rayfield:LoadConfiguration()
+ArrayField:LoadConfiguration()
 
 print("Yareu GUI by Grok n Eyn Loaded! Check console (F9) for Item ESP debug info.")
