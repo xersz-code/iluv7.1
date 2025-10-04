@@ -174,80 +174,7 @@ local customPunchEnabled = false
 local customPunchAnimId = ""
 local punchSfxEnabled = false
 local punchSfxId = "rbxassetid://72497986177365"
-
--- state tables
-local playingTracksAudio = {}  -- [AnimationTrack] = true
-local hrpSoundCache = {}       -- [HumanoidRootPart] = Sound (reuse)
-
--- Helper: ensure we have a sound instance parented to hrp (reuse)
-local function getOrCreateHrpSound(hrp)
-    if not hrp then return nil end
-    local s = hrpSoundCache[hrp]
-    if s and s.Parent == hrp then
-        return s
-    end
-    if s and s.Parent then
-        pcall(function() s:Destroy() end)
-    end
-    local sound = Instance.new("Sound")
-    sound.Name = "AutoPunchSfx"
-    sound.Looped = false
-    sound.Volume = 1
-    sound.Parent = hrp
-    hrpSoundCache[hrp] = sound
-    return sound
-end
-
--- Connect / reconnect when character changes
-local function hookCharacterForAudio(char)
-    if not char then return end
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hum then return end
-
-    -- Connect once per Humanoid
-    hum.AnimationPlayed:Connect(function(track)
-        if not punchSfxEnabled then return end
-        if not track or not track.Animation then return end
-
-        local ok, animId = pcall(function()
-            return tostring(track.Animation.AnimationId):match("%d+")
-        end)
-        if not ok or not animId then return end
-        if not table.find(punchAnimIds, animId) then return end
-
-        -- Already handled this track? skip
-        if playingTracksAudio[track] then return end
-        playingTracksAudio[track] = true
-
-        -- play SFX once
-        local hrpToUse = hrp or char:FindFirstChild("HumanoidRootPart")
-        if hrpToUse then
-            local sound = getOrCreateHrpSound(hrpToUse)
-            if sound then
-                if tostring(sound.SoundId) ~= tostring(punchSfxId) then
-                    sound.SoundId = punchSfxId
-                end
-                pcall(function() sound:Play() end)
-            end
-        end
-
-        -- cleanup when stopped
-        track.Stopped:Connect(function()
-            playingTracksAudio[track] = nil
-        end)
-    end)
-end
-
--- init for current char & respawns
-if lp.Character then
-    hookCharacterForAudio(lp.Character)
-end
-lp.CharacterAdded:Connect(function(char)
-    task.wait(0.4)
-    hookCharacterForAudio(char)
-end)
-
+local _punchPrevPlayingAudio = {}
 
 -- delete for pc execs
 local infiniteStamina = false
@@ -1112,7 +1039,6 @@ AutoPunchTab:CreateInput({
     Callback = function(Text) messageWhenAutoPunch = Text end
 })
 
--- === Audio Punch Settings ===
 AutoPunchTab:CreateToggle({
     Name = "Audio When Punch",
     CurrentValue = false,
@@ -2827,40 +2753,48 @@ RunService.RenderStepped:Connect(function()
         _blockPrevPlaying = currentPlaying
     end
     
-    -- === Audio Punch Detection (terpisah dari auto message) ===
-RunService.RenderStepped:Connect(function()
-    local char = lp.Character
-    if not char then return end
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if not hum then return end
+    -- === Audio-When-Punching: play once per animation start ===
+    do
+        local myChar = lp.Character
+        local hum = myChar and myChar:FindFirstChildOfClass("Humanoid")
+        local animator = cachedAnimator
+        local currentPlaying = {} -- map animId -> true for tracks playing this frame
+        if not animator then
+            refreshAnimator()
+            animator = cachedAnimator
+        end
+        if animator and punchSfxEnabled then
+            local ok, tracks = pcall(function() return animator:GetPlayingAnimationTracks() end)
+            if ok and tracks then
+                for _, track in ipairs(tracks) do
+                    local animId
+                    pcall(function()
+                        animId = tostring(track.Animation and track.Animation.AnimationId or ""):match("%d+")
+                    end)
+                    if animId and table.find(punchAnimIds, animId) then
+                        currentPlaying[animId] = true
 
-    for _, track in ipairs(hum:GetPlayingAnimationTracks()) do
-        local animId = tostring(track.Animation.AnimationId):match("%d+")
-        if animId and table.find(punchAnimIds, animId) then
-            -- baru mulai anim punch (khusus audio)
-            if not _punchPrevPlayingAudio[animId] then
-                playPunchSfx()
+                        -- kalau anim baru mulai → play audio sekali
+                        if not _punchPrevPlayingAudio[animId] then
+                            local hrp = myChar:FindFirstChild("HumanoidRootPart")
+                            if hrp then
+                                local sound = Instance.new("Sound")
+                                sound.Name = "PunchSFX"
+                                sound.SoundId = punchSfxId
+                                sound.Volume = 1
+                                sound.Parent = hrp
+                                sound:Play()
+                                game:GetService("Debris"):AddItem(sound, 5)
+                            end
+                        end
+                    end
+                end
             end
-            _punchPrevPlayingAudio[animId] = true
         end
+        -- update state
+        _punchPrevPlayingAudio = currentPlaying
     end
-
-    -- reset status anim audio yg sudah berhenti
-    for id, wasPlaying in pairs(_punchPrevPlayingAudio) do
-        local stillPlaying = false
-        for _, track in ipairs(hum:GetPlayingAnimationTracks()) do
-            local aid = tostring(track.Animation.AnimationId):match("%d+")
-            if aid == id then
-                stillPlaying = true
-                break
-            end
-        end
-        if not stillPlaying then
-            _punchPrevPlayingAudio[id] = nil
-        end
-    end
-end)
-
+    
     -- === end message-when-punching ===
     if aimPunch then
         if not cachedAnimator then
