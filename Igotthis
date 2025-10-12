@@ -1065,9 +1065,9 @@ AutoPunchTab:CreateSlider({
 
 AutoPunchTab:CreateSlider({
 Name = "Fling Power",
-Range = {5000, 50000000000000},
-Increment = 1000000,
-CurrentValue = 10000,
+Range = {100, 100000},
+Increment = 100,
+CurrentValue = 100,
 Flag = "FlingPower",
 Callback = function(Value) flingPower = Value end
 })
