@@ -107,6 +107,9 @@ local looseFacing = true
 local detectionRange = 18
 local messageWhenAutoBlockOn = false
 local messageWhenAutoBlock = ""
+local autoStaminaEnabled = false
+local staminaThreshold = 2 -- Default stamina threshold (50%)
+local StaminaModule = nil
 -- local fasterAudioAB = false (this is scrapped. im too lazy to remove it)
 local Debris = game:GetService("Debris")
 -- Anti-flick toggle state
@@ -163,7 +166,7 @@ local autoPunchOn = false
 local messageWhenAutoPunchOn = false
 local messageWhenAutoPunch = ""
 local flingPunchOn = false
-local flingPower = 10000
+local flingPower = 100
 local hiddenfling = false
 local aimPunch = false
 
@@ -228,6 +231,67 @@ local function enableInfiniteStamina()
         end
     end)
 end
+
+-- Attempt to load the Stamina Module
+local function loadStaminaModule()
+    local success, module = pcall(function()
+        return require(game.ReplicatedStorage.Systems.Character.Game.Sprinting)
+    end)
+    if success and module then
+        StaminaModule = module
+        return true
+    else
+        warn("Failed to load Stamina Module")
+        return false
+    end
+end
+
+-- Initialize Stamina Module
+loadStaminaModule()
+
+-- Function to stop sprinting
+local function stopSprinting()
+    local char = lp.Character
+    local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid:Move(Vector3.new(0, 0, 0), true) -- Stop movement to halt sprinting
+    end
+end
+
+-- Function to check stamina and manage sprinting
+local function checkStamina()
+    if not autoStaminaEnabled or not StaminaModule then
+        return
+    end
+
+    local char = lp.Character
+    local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+    if not humanoid or not StaminaModule.Stamina or not StaminaModule.MaxStamina then
+        return
+    end
+
+    -- Calculate stamina percentage
+    local staminaPercent = (StaminaModule.Stamina / StaminaModule.MaxStamina) * 100
+
+    -- Stop sprinting if stamina is below threshold
+    if staminaPercent <= staminaThreshold then
+        stopSprinting()
+    end
+end
+
+-- Monitor Stamina Changes
+RunService.Heartbeat:Connect(function()
+    checkStamina()
+end)
+
+-- Reapply on Character Respawn
+lp.CharacterAdded:Connect(function()
+    task.wait(1) -- Wait for character to fully load
+    if autoStaminaEnabled then
+        loadStaminaModule() -- Reload stamina module if needed
+        checkStamina()
+    end
+end)
 
 local cachedAnimator = nil
 local function refreshAnimator()
@@ -1380,6 +1444,37 @@ MiscTab:CreateToggle({
     end
 })
 
+-- Toggle for Auto Stamina Management
+MiscTab:CreateToggle({
+    Name = "Auto Stamina Management",
+    CurrentValue = false,
+    Flag = "AutoStaminaToggle",
+    Callback = function(value)
+        autoStaminaEnabled = value
+        if value and not StaminaModule then
+            loadStaminaModule()
+        end
+        if not value then
+            local char = lp.Character
+            local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid:Move(Vector3.new(0, 0, 0), false) -- Reset movement
+            end
+        end
+    end
+})
+-- Slider for Stamina Threshold
+MiscTab:CreateSlider({
+    Name = "Stamina Threshold",
+    Range = {0, 99},
+    Increment = 1,
+    Suffix = "%",
+    CurrentValue = 2,
+    Flag = "StaminaThreshold",
+    Callback = function(value)
+        staminaThreshold = math.clamp(value, 0, 99) -- Ensure value is between 0 and 99
+    end
+})
 
 local function addESP(obj)
     if not obj:IsA("Model") then return end
