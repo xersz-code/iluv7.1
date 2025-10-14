@@ -50,9 +50,7 @@ local trackedAnimations = {
 }
 local aimTargetsTwoTime = { "Slasher", "Jason", "c00lkidd", "JohnDoe", "1x1x1x1", "Noli" }
 local trackedAnimationsTwoTime = {
-	["86545133269813"] = true,
-	["136007065400978"] = true,
-	["140703210927645"] = true
+	["86545133269813"] = true
 }
 local ItemNames = { "Medkit", "BloxyCola", "Generator" }
 local Humanoid, HRP = nil, nil
