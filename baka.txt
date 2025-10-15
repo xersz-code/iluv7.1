@@ -1,0 +1,524 @@
+--// Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local KillersFolder = workspace:WaitForChild("Players"):WaitForChild("Killers")
+
+--------------------------------------------------
+--// ScreenGui
+--------------------------------------------------
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CheatUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = PlayerGui
+
+--------------------------------------------------
+--// Main Frame
+--------------------------------------------------
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 240, 0, 320)
+frame.Position = UDim2.new(0.1, 0, 0.1, 0)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 35)
+title.BackgroundTransparency = 1
+title.Text = "Yareu (gabut btw)"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Parent = frame
+
+-- Hide/Show Button
+-- Hide/Show Button
+local hideButton = Instance.new("TextButton")
+hideButton.Size = UDim2.new(0, 60, 0, 25)
+hideButton.Position = UDim2.new(1, -65, 0, 5)
+hideButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+hideButton.TextColor3 = Color3.new(1, 1, 1)
+hideButton.Text = "HIDE"
+hideButton.Parent = frame
+Instance.new("UICorner", hideButton).CornerRadius = UDim.new(0, 6)
+
+local uiHidden = false
+local showButton = nil
+
+hideButton.MouseButton1Click:Connect(function()
+	uiHidden = not uiHidden
+	if uiHidden then
+		-- Bikin tombol kecil buat balikin GUI
+		showButton = Instance.new("TextButton")
+		showButton.Size = UDim2.new(0, 80, 0, 30)
+		showButton.Position = UDim2.new(0, 10, 0, 10)
+		showButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+		showButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+		showButton.Text = "SHOW UI"
+		showButton.Font = Enum.Font.GothamBold
+		showButton.TextSize = 14
+		showButton.Active = true
+		showButton.Draggable = true
+		showButton.Parent = screenGui
+		Instance.new("UICorner", showButton).CornerRadius = UDim.new(0, 6)
+
+		frame.Visible = false
+		hideButton.Visible = false
+
+		showButton.MouseButton1Click:Connect(function()
+			uiHidden = false
+			frame.Visible = true
+			hideButton.Visible = true
+			showButton:Destroy()
+			showButton = nil
+		end)
+	else
+		if showButton then
+			showButton:Destroy()
+			showButton = nil
+		end
+		frame.Visible = true
+	end
+end)
+
+-- Container buat tombol2
+local buttonHolder = Instance.new("Frame")
+buttonHolder.Size = UDim2.new(1, -20, 1, -45)
+buttonHolder.Position = UDim2.new(0, 10, 0, 40)
+buttonHolder.BackgroundTransparency = 1
+buttonHolder.Parent = frame
+
+-- Layout otomatis
+local layout = Instance.new("UIListLayout")
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Padding = UDim.new(0, 10)
+layout.Parent = buttonHolder
+
+--------------------------------------------------
+--// Function Helpers
+--------------------------------------------------
+local function createButton(text)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 30)
+    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Text = text
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 14
+    btn.Parent = buttonHolder
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    return btn
+end
+
+local function createBox(defaultText, placeholder)
+    local box = Instance.new("TextBox")
+    box.Size = UDim2.new(1, 0, 0, 30)
+    box.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    box.TextColor3 = Color3.fromRGB(255, 255, 255)
+    box.Text = defaultText
+    box.PlaceholderText = placeholder
+    box.ClearTextOnFocus = false
+    box.Font = Enum.Font.Gotham
+    box.TextSize = 14
+    box.Parent = buttonHolder
+    Instance.new("UICorner", box).CornerRadius = UDim.new(0, 6)
+    return box
+end
+
+--------------------------------------------------
+--// UI Components
+--------------------------------------------------
+local aimButton = Instance.new("TextButton")
+aimButton.Size = UDim2.new(0, 200, 0, 30)
+aimButton.Position = UDim2.new(0, 20, 0, 50)
+aimButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+aimButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+aimButton.Text = "Auto Aim: OFF"
+aimButton.Font = Enum.Font.Gotham
+aimButton.TextSize = 14
+aimButton.Parent = frame
+Instance.new("UICorner", aimButton).CornerRadius = UDim.new(0, 6)
+
+-- Prediction Box
+local predictionBox = Instance.new("TextBox")
+predictionBox.Size = UDim2.new(0, 200, 0, 30)
+predictionBox.Position = UDim2.new(0, 20, 0, 90)
+predictionBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+predictionBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+predictionBox.Text = "4"
+predictionBox.PlaceholderText = "Prediction (number)"
+predictionBox.ClearTextOnFocus = false
+predictionBox.Font = Enum.Font.Gotham
+predictionBox.TextSize = 14
+predictionBox.Parent = frame
+Instance.new("UICorner", predictionBox).CornerRadius = UDim.new(0, 6)
+
+--------------------------------------------------
+--// Infinite Stamina Toggle
+--------------------------------------------------
+local staminaButton = Instance.new("TextButton")
+staminaButton.Size = UDim2.new(0, 200, 0, 30)
+staminaButton.Position = UDim2.new(0, 20, 0, 130)
+staminaButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+staminaButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+staminaButton.Text = "Infinite Stamina: OFF"
+staminaButton.Font = Enum.Font.Gotham
+staminaButton.TextSize = 14
+staminaButton.Parent = frame
+Instance.new("UICorner", staminaButton).CornerRadius = UDim.new(0, 6)
+
+--------------------------------------------------
+--// Esp Killer
+--------------------------------------------------
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0, 200, 0, 30)
+ToggleButton.Position = UDim2.new(0, 20, 0, 170)
+ToggleButton.Text = "ESP: OFF"
+ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.Parent = frame
+Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(0, 6)
+
+local ESP_Enabled = false
+
+
+local twoTimeButton = Instance.new("TextButton")
+twoTimeButton.Size = UDim2.new(0, 200, 0, 30)
+twoTimeButton.Position = UDim2.new(0, 20, 0, 210)
+twoTimeButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+twoTimeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+twoTimeButton.Text = "Auto Aim Two Time: OFF"
+twoTimeButton.Font = Enum.Font.Gotham
+twoTimeButton.TextSize = 14
+twoTimeButton.Parent = frame
+Instance.new("UICorner", twoTimeButton).CornerRadius = UDim.new(0, 6)
+
+--------------------------------------------------
+-- Auto Aim Chance (asli, ga diubah)
+------------------------------------------
+local active = false
+local aimDuration = 1.1
+local aimTargets = { "Jason", "Slasher", "c00lkidd", "JohnDoe", "1x1x1x1", "Noli" }
+local trackedAnimations = {
+    ["103601716322988"] = true,
+    ["133491532453922"] = true,
+    ["86371356500204"] = true,
+    ["76649505662612"] = true,
+    ["81698196845041"] = true
+}
+
+local Humanoid, HRP = nil, nil
+local lastTriggerTime = 0
+local aiming = false
+local originalWS, originalJP, originalAutoRotate = nil, nil, nil
+
+aimButton.MouseButton1Click:Connect(function()
+    active = not active
+    aimButton.Text = active and "Auto Aim: ON" or "Auto Aim: OFF"
+    aimButton.BackgroundColor3 = active and Color3.fromRGB(0, 170, 85) or Color3.fromRGB(40, 40, 40)
+end)
+
+local function getValidTarget()
+    local killersFolder = workspace:FindFirstChild("Players") and workspace.Players:FindFirstChild("Killers")
+    if killersFolder then
+        for _, name in ipairs(aimTargets) do
+            local target = killersFolder:FindFirstChild(name)
+            if target and target:FindFirstChild("HumanoidRootPart") then
+                return target.HumanoidRootPart
+            end
+        end
+    end
+    return nil
+end
+
+local function getPlayingAnimationIds()
+    local ids = {}
+    if Humanoid then
+        for _, track in ipairs(Humanoid:GetPlayingAnimationTracks()) do
+            if track.Animation and track.Animation.AnimationId then
+                local id = track.Animation.AnimationId:match("%d+")
+                if id then ids[id] = true end
+            end
+        end
+    end
+    return ids
+end
+
+local function setupCharacter(char)
+    Humanoid = char:WaitForChild("Humanoid")
+    HRP = char:WaitForChild("HumanoidRootPart")
+end
+
+if LocalPlayer.Character then setupCharacter(LocalPlayer.Character) end
+LocalPlayer.CharacterAdded:Connect(setupCharacter)
+
+RunService.RenderStepped:Connect(function()
+    if not active or not Humanoid or not HRP then return end
+
+    local playing = getPlayingAnimationIds()
+    local triggered = false
+    for id in pairs(trackedAnimations) do
+        if playing[id] then triggered = true break end
+    end
+
+    if triggered then
+        lastTriggerTime = tick()
+        aiming = true
+    end
+
+    if aiming and tick() - lastTriggerTime <= aimDuration then
+        if not originalWS then
+            originalWS, originalJP, originalAutoRotate = Humanoid.WalkSpeed, Humanoid.JumpPower, Humanoid.AutoRotate
+        end
+
+        Humanoid.AutoRotate = false
+        HRP.AssemblyAngularVelocity = Vector3.zero
+
+        local targetHRP = getValidTarget()
+        if targetHRP then
+            local prediction = tonumber(predictionBox.Text) or 0
+            local predictedPos = targetHRP.Position + (targetHRP.CFrame.LookVector * prediction)
+            local direction = (predictedPos - HRP.Position).Unit
+            local yRot = math.atan2(-direction.X, -direction.Z)
+            HRP.CFrame = CFrame.new(HRP.Position) * CFrame.Angles(0, yRot, 0)
+        end
+    elseif aiming then
+        aiming = false
+        if originalWS and originalJP and originalAutoRotate ~= nil then
+            Humanoid.WalkSpeed, Humanoid.JumpPower, Humanoid.AutoRotate = originalWS, originalJP, originalAutoRotate
+            originalWS, originalJP, originalAutoRotate = nil, nil, nil
+        end
+    end
+end)
+
+--------------------------------------------------
+-- Infinite Stamina Logic (asli, ga diubah)
+--------------------------------------------------
+local infiniteStamina = false
+
+local function enableInfiniteStamina()
+    local success, StaminaModule = pcall(function()
+        return require(game.ReplicatedStorage.Systems.Character.Game.Sprinting)
+    end)
+    if not success or not StaminaModule then return end
+
+    StaminaModule.StaminaLossDisabled = true
+
+    task.spawn(function()
+        while infiniteStamina and StaminaModule do
+            task.wait(0.1)
+            StaminaModule.Stamina = StaminaModule.MaxStamina
+            StaminaModule.StaminaChanged:Fire()
+        end
+    end)
+end
+
+staminaButton.MouseButton1Click:Connect(function()
+    infiniteStamina = not infiniteStamina
+    staminaButton.Text = infiniteStamina and "Infinite Stamina: ON" or "Infinite Stamina: OFF"
+    staminaButton.BackgroundColor3 = infiniteStamina and Color3.fromRGB(0, 170, 85) or Color3.fromRGB(40, 40, 40)
+    if infiniteStamina then enableInfiniteStamina() end
+end)
+
+LocalPlayer.CharacterAdded:Connect(function()
+    task.wait(1)
+    if infiniteStamina then enableInfiniteStamina() end
+end)
+
+
+--------------------------------------------------
+-- ESP Killer Logic (asli, ga diubah)
+--------------------------------------------------
+local function makeESP(model)
+    if not model:FindFirstChild("HumanoidRootPart") then return end
+
+    -- Highlight
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "KillerESP"
+    highlight.FillTransparency = 0.2
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    highlight.OutlineTransparency = 0
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.Parent = model
+
+    -- Billboard for distance
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "DistanceESP"
+    billboard.Size = UDim2.new(0, 150, 0, 50)
+    billboard.Adornee = model:FindFirstChild("HumanoidRootPart")
+    billboard.AlwaysOnTop = true
+    billboard.Parent = model
+
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextStrokeTransparency = 0
+    textLabel.Font = Enum.Font.SourceSansBold
+    textLabel.TextScaled = true
+    textLabel.Parent = billboard
+
+    -- Update distance & direction
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if model and model:FindFirstChild("HumanoidRootPart") and ESP_Enabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local playerPos = LocalPlayer.Character.HumanoidRootPart.Position
+            local killerPos = model.HumanoidRootPart.Position
+            local dist = (playerPos - killerPos).Magnitude
+
+            -- arah player ke killer
+            local playerLook = LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector
+            local directionToKiller = (killerPos - playerPos).Unit
+            local dot = playerLook:Dot(directionToKiller)
+
+            if dot < 0 then
+                textLabel.Text = "KILLER [" .. math.floor(dist) .. "m] (BEHIND)"
+                textLabel.TextColor3 = Color3.fromRGB(0, 255, 0) -- 🟢 hijau
+                highlight.FillColor = Color3.fromRGB(0, 255, 0)
+            else
+                textLabel.Text = "KILLER [" .. math.floor(dist) .. "m]"
+                textLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- 🔴 merah
+                highlight.FillColor = Color3.fromRGB(255, 0, 0)
+            end
+        elseif textLabel then
+            textLabel.Text = ""
+        end
+    end)
+end
+
+-- Apply ESP when enabled
+local function enableESP()
+    for _, killer in ipairs(KillersFolder:GetChildren()) do
+        if not killer:FindFirstChild("KillerESP") then
+            makeESP(killer)
+        end
+    end
+end
+
+-- Toggle button
+ToggleButton.MouseButton1Click:Connect(function()
+    ESP_Enabled = not ESP_Enabled
+    ToggleButton.Text = ESP_Enabled and "ESP: ON" or "ESP: OFF"
+    ToggleButton.BackgroundColor3 = ESP_Enabled and Color3.fromRGB(0, 170, 85) or Color3.fromRGB(40, 40, 40)
+
+    if ESP_Enabled then
+        enableESP()
+    else
+        -- remove ESP
+        for _, killer in ipairs(KillersFolder:GetChildren()) do
+            if killer:FindFirstChild("KillerESP") then
+                killer.KillerESP:Destroy()
+            end
+            if killer:FindFirstChild("DistanceESP") then
+                killer.DistanceESP:Destroy()
+            end
+        end
+    end
+end)
+
+-- Auto apply ESP for new killers
+KillersFolder.ChildAdded:Connect(function(killer)
+    if ESP_Enabled then
+        killer:WaitForChild("HumanoidRootPart")
+        makeESP(killer)
+    end
+end)
+
+--------------------------------------------------
+-- Auto Aim Two Time Logic (dari script pertama)
+--------------------------------------------------
+
+local activeTwoTime = false
+local LocalPlayer = game:GetService("Players").LocalPlayer
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Humanoid, HRP = nil, nil
+
+-- Pakai daggerRemote dari script pertama
+local daggerRemote = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Network"):WaitForChild("RemoteEvent")
+
+-- Ambil cooldown TextLabel dari GUI MainUI
+local daggerCooldownText = nil
+local function refreshDaggerRef()
+    local mainui = LocalPlayer:FindFirstChild("PlayerGui"):FindFirstChild("MainUI")
+    if mainui and mainui:FindFirstChild("AbilityContainer") then
+        local dagger = mainui.AbilityContainer:FindFirstChild("Dagger")
+        if dagger and dagger:FindFirstChild("CooldownTime") then
+            daggerCooldownText = dagger.CooldownTime
+        end
+    end
+end
+refreshDaggerRef()
+LocalPlayer.PlayerGui.DescendantAdded:Connect(refreshDaggerRef)
+
+-- Killer list
+local aimTargetsTwoTime = { "Slasher", "Jason", "c00lkidd", "JohnDoe", "1x1x1x1", "Noli" }
+
+-- GUI toggle button
+twoTimeButton.MouseButton1Click:Connect(function()
+    activeTwoTime = not activeTwoTime
+    twoTimeButton.Text = activeTwoTime and "Auto Aim Dagger: ON" or "Auto Aim Dagger: OFF"
+    twoTimeButton.BackgroundColor3 = activeTwoTime and Color3.fromRGB(0,170,85) or Color3.fromRGB(40,40,40)
+end)
+
+local function getKillersFolder()
+    local playersFolder = workspace:FindFirstChild("Players")
+    if playersFolder then
+        return playersFolder:FindFirstChild("Killers")
+    end
+    return workspace:FindFirstChild("Killers")
+end
+
+local function getValidTarget()
+    local killersFolder = getKillersFolder()
+    if killersFolder then
+        for _, name in ipairs(aimTargetsTwoTime) do
+            local target = killersFolder:FindFirstChild(name)
+            if target and target:FindFirstChild("HumanoidRootPart") then
+                return target.HumanoidRootPart
+            end
+        end
+    end
+    return nil
+end
+
+local function setupCharacter(char)
+    Humanoid = char:WaitForChild("Humanoid")
+    HRP = char:WaitForChild("HumanoidRootPart")
+end
+if LocalPlayer.Character then setupCharacter(LocalPlayer.Character) end
+LocalPlayer.CharacterAdded:Connect(setupCharacter)
+
+-- Main loop: aim-lock live selama dagger aktif
+RunService.RenderStepped:Connect(function()
+    if not activeTwoTime or not HRP or not Humanoid then return end
+    if not daggerCooldownText or tonumber(daggerCooldownText.Text) then return end -- dagger on cooldown, skip
+
+    local targetHRP = getValidTarget()
+    if targetHRP then
+        -- Fire dagger
+        daggerRemote:FireServer("UseActorAbility", "Dagger")
+
+        -- Aim-lock live selama dagger masih aktif (cek setiap frame)
+        local alignConn
+        alignConn = RunService.RenderStepped:Connect(function()
+            if not targetHRP or not targetHRP.Parent then
+                if alignConn then alignConn:Disconnect() end
+                return
+            end
+
+            -- Cek cooldown lagi, begitu dagger selesai, stop aim-lock
+            if daggerCooldownText and tonumber(daggerCooldownText.Text) then
+                if alignConn then alignConn:Disconnect() end
+                return
+            end
+
+            -- Aim-lock ke killer
+            HRP.CFrame = CFrame.new(HRP.Position, targetHRP.Position)
+        end)
+    end
+end)
